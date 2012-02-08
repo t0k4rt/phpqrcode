@@ -9,8 +9,8 @@ Usage : QRcode::eps('arguments');
 Copyright (C) 2012 by Alexandre Assouad 
 
 == ROADMAP ==
+Write and cache eps files
 Support for SVG export
-
 
 
 == LICENSING ==
