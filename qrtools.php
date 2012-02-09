@@ -164,6 +164,19 @@
             </table>';
         }
         
+        public static function save($content, $filename_path)
+        {           
+            try {
+                $handle = fopen($filename_path, "w");
+                fwrite($handle, $content);
+                fclose($handle);
+                return true;
+            } catch (Exception $e) {
+                echo 'Exception reçue : ',  $e->getMessage(), "\n";
+            }      
+            
+        }
+        
     }
     
     //##########################################################################

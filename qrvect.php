@@ -37,17 +37,14 @@
                 return $vect;
             } else {
                 if($saveandprint===TRUE){
+                    QRtools::save($vect, $filename);
                     header("Content-Type: application/postscript");
                     header('Content-Disposition: filename="'.$filename.'"');
                     return $vect;
                 }else{
-                    header("Content-Type: application/postscript");
-                    header('Content-Disposition: filename="'.$filename.'"');
-                    return $vect;
+                    QRtools::save($vect, $filename);
                 }
             }
-            
-            ImageDestroy($image);
         }
         
     
@@ -110,4 +107,78 @@
             
             return $output;
         }
+        
+        //----------------------------------------------------------------------
+        public static function svg($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE) 
+        {
+            $vect = self::vectSVG($frame, $pixelPerPoint, $outerFrame);
+            
+            if ($filename === false) {
+                header("Content-Type: image/svg+xml");
+                header('Content-Disposition: filename="qrcode.svg"');
+                return $vect;
+            } else {
+                if($saveandprint===TRUE){
+                    QRtools::save($vect, $filename);
+                    header("Content-Type: image/svg+xml");
+                    header('Content-Disposition: filename="'.$filename.'"');
+                    return $vect;
+                }else{
+                    QRtools::save($vect, $filename);
+                }
+            }
+        }
+        
+    
+        //----------------------------------------------------------------------
+        private static function vectSVG($frame, $pixelPerPoint = 4, $outerFrame = 4) 
+        {
+            $h = count($frame);
+            $w = strlen($frame[0]);
+            
+            $imgW = $w + 2*$outerFrame;
+            $imgH = $h + 2*$outerFrame;
+            
+
+            // Set colors/transparency
+            $fore_color = 0x000000;
+            $back_color = 0xFFFFFF;
+                    
+            $output = 
+            '<?xml version="1.0" encoding="utf-8"?>'."\n".
+            '<svg version="1.1" baseProfile="full"  width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" viewBox="0 0 '.$imgW * $pixelPerPoint.' '.$imgH * $pixelPerPoint.'"
+             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">'."\n".
+            '<desc></desc>'."\n";
+                
+            if(!empty($back_color)) {
+                $backgroundcolor = dechex($back_color);
+                $output .= '<rect width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" fill="#'.$backgroundcolor.'" cx="0" cy="0" />'."\n";
+            }
+                
+            $output .= 
+            '<defs>'."\n".
+            '<rect id="p" width="'.$pixelPerPoint.'" height="'.$pixelPerPoint.'" />'."\n".
+            '</defs>'."\n".
+            '<g fill="#'.dechex($fore_color).'">'."\n";
+                
+                
+            // Convert the matrix into pixels
+
+            for($i=0; $i<$h; $i++) {
+                for($j=0; $j<$w; $j++) {
+                    if( $frame[$i][$j] ) {
+                        $x = ($i + $outerFrame) * $pixelPerPoint;
+                        $y = ($j + $outerFrame) * $pixelPerPoint;
+                        $output .= '<use x="'.$x.'" y="'.$y.'" xlink:href="#p" />'."\n";
+                    }
+                }
+            }
+            $output .= 
+            '</g>'."\n".
+            '</svg>';
+            
+            return $output;
+        }
     }
+    
+    
