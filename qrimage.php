@@ -27,9 +27,9 @@
     class QRimage {
     
         //----------------------------------------------------------------------
-        public static function png($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE) 
+        public static function png($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE, $back_color, $fore_color) 
         {
-            $image = self::image($frame, $pixelPerPoint, $outerFrame);
+            $image = self::image($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color);
             
             if ($filename === false) {
                 Header("Content-type: image/png");
@@ -50,7 +50,7 @@
         //----------------------------------------------------------------------
         public static function jpg($frame, $filename = false, $pixelPerPoint = 8, $outerFrame = 4, $q = 85) 
         {
-            $image = self::image($frame, $pixelPerPoint, $outerFrame);
+            $image = self::image($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color);
             
             if ($filename === false) {
                 Header("Content-type: image/jpeg");
@@ -63,7 +63,7 @@
         }
     
         //----------------------------------------------------------------------
-        private static function image($frame, $pixelPerPoint = 4, $outerFrame = 4) 
+        private static function image($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
         {
             $h = count($frame);
             $w = strlen($frame[0]);
@@ -73,8 +73,20 @@
             
             $base_image =ImageCreate($imgW, $imgH);
             
-            $col[0] = ImageColorAllocate($base_image,255,255,255);
-            $col[1] = ImageColorAllocate($base_image,0,0,0);
+            // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
+            $r1 = round((($fore_color & 0xFF0000) >> 16), 5);
+            $b1 = round((($fore_color & 0x00FF00) >> 8), 5);
+            $g1 = round(($fore_color & 0x0000FF), 5);
+
+            // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
+            $r2 = round((($back_color & 0xFF0000) >> 16), 5);
+            $b2 = round((($back_color & 0x00FF00) >> 8), 5);
+            $g2 = round(($back_color & 0x0000FF), 5);
+
+
+            
+            $col[0] = ImageColorAllocate($base_image,$r2,$b2,$g2);
+            $col[1] = ImageColorAllocate($base_image,$r1,$b1,$g1);
 
             imagefill($base_image, 0, 0, $col[0]);
 

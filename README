@@ -8,6 +8,13 @@ Usage : QRcode::eps('arguments');
 Added support for SVG export
 Usage : QRcode::svg('arguments');
 
+Added support for color export :
+example : 
+$back_color = 0xFFFF00;
+$fore_color = 0xFF00FF;
+QRcode::png('some othertext 1234', false, 'h', 20, 1, false, $back_color, $fore_color);
+
+
 Copyright (C) 2012 by Alexandre Assouad 
 
 == LICENSING ==

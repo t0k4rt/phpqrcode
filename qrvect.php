@@ -27,9 +27,9 @@
     class QRvect {
     
         //----------------------------------------------------------------------
-        public static function eps($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE) 
+        public static function eps($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
         {
-            $vect = self::vectEPS($frame, $pixelPerPoint, $outerFrame);
+            $vect = self::vectEPS($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color);
             
             if ($filename === false) {
                 header("Content-Type: application/postscript");
@@ -49,7 +49,7 @@
         
     
         //----------------------------------------------------------------------
-        private static function vectEPS($frame, $pixelPerPoint = 4, $outerFrame = 4) 
+        private static function vectEPS($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
         {
             $h = count($frame);
             $w = strlen($frame[0]);
@@ -57,16 +57,20 @@
             $imgW = $w + 2*$outerFrame;
             $imgH = $h + 2*$outerFrame;
             
-
-            // Set colors/transparency
-            $fore_color = 0x000000;
-            $back_color = 0xFFFFFF;
+            
+            
             
             // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
             $r = round((($fore_color & 0xFF0000) >> 16) / 255, 5);
             $b = round((($fore_color & 0x00FF00) >> 8) / 255, 5);
             $g = round(($fore_color & 0x0000FF) / 255, 5);
-            $fore_color = $r.' '.$g.' '.$b;
+            $fore_color = $r.' '.$b.' '.$g;
+            
+            // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
+            $r = round((($back_color & 0xFF0000) >> 16) / 255, 5);
+            $b = round((($back_color & 0x00FF00) >> 8) / 255, 5);
+            $g = round(($back_color & 0x0000FF) / 255, 5);
+            $back_color = $r.' '.$b.' '.$g;
             
             $output = 
             '%!PS-Adobe EPSF-3.0'."\n".
@@ -83,25 +87,33 @@
             // position the center of the coordinate system
             
             $output .= $outerFrame.' '.$outerFrame.' translate'."\n";
+           
+           
+            
             
             // redefine the 'rectfill' operator to shorten the syntax
             $output .= '/F { rectfill } def'."\n";
+            
+            // set the symbol color
+            $output .= $back_color.' setrgbcolor'."\n";
+            $output .= '-'.$outerFrame.' -'.$outerFrame.' '.($w + 2*$outerFrame).' '.($h + 2*$outerFrame).' F'."\n";
+            
+            
             // set the symbol color
             $output .= $fore_color.' setrgbcolor'."\n";
-            
-
 
             // Convert the matrix into pixels
 
             for($i=0; $i<$h; $i++) {
                 for($j=0; $j<$w; $j++) {
-                    if( $frame[$i][$j] ) {
-                        $x = $i;
-                        $y = $h - 1 - $j;
+                    if( $frame[$i][$j] == '1') {
+                        $y = $h - 1 - $i;
+                        $x = $j;
                         $output .= $x.' '.$y.' 1 1 F'."\n";
                     }
                 }
             }
+            
             
             $output .='%%EOF';
             
@@ -109,9 +121,9 @@
         }
         
         //----------------------------------------------------------------------
-        public static function svg($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE) 
+        public static function svg($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE, $back_color, $fore_color) 
         {
-            $vect = self::vectSVG($frame, $pixelPerPoint, $outerFrame);
+            $vect = self::vectSVG($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color);
             
             if ($filename === false) {
                 header("Content-Type: image/svg+xml");
@@ -131,7 +143,7 @@
         
     
         //----------------------------------------------------------------------
-        private static function vectSVG($frame, $pixelPerPoint = 4, $outerFrame = 4) 
+        private static function vectSVG($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
         {
             $h = count($frame);
             $w = strlen($frame[0]);
@@ -139,15 +151,17 @@
             $imgW = $w + 2*$outerFrame;
             $imgH = $h + 2*$outerFrame;
             
-
-            // Set colors/transparency
-            $fore_color = 0x000000;
-            $back_color = 0xFFFFFF;
-                    
+            
             $output = 
             '<?xml version="1.0" encoding="utf-8"?>'."\n".
             '<svg version="1.1" baseProfile="full"  width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" viewBox="0 0 '.$imgW * $pixelPerPoint.' '.$imgH * $pixelPerPoint.'"
              xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">'."\n".
+            '<desc></desc>'."\n";
+
+            $output = 
+            '<?xml version="1.0" encoding="utf-8"?>'."\n".
+            '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">'."\n".
+            '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" xmlns:xlink="http://www.w3.org/1999/xlink" width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" viewBox="0 0 '.$imgW * $pixelPerPoint.' '.$imgH * $pixelPerPoint.'">'."\n".
             '<desc></desc>'."\n";
                 
             if(!empty($back_color)) {
@@ -166,9 +180,9 @@
 
             for($i=0; $i<$h; $i++) {
                 for($j=0; $j<$w; $j++) {
-                    if( $frame[$i][$j] ) {
-                        $x = ($i + $outerFrame) * $pixelPerPoint;
-                        $y = ($j + $outerFrame) * $pixelPerPoint;
+                    if( $frame[$i][$j] == '1') {
+                        $y = ($i + $outerFrame) * $pixelPerPoint;
+                        $x = ($j + $outerFrame) * $pixelPerPoint;
                         $output .= '<use x="'.$x.'" y="'.$y.'" xlink:href="#p" />'."\n";
                     }
                 }
