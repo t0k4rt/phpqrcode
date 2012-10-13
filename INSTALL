@@ -18,7 +18,7 @@ provided comments and project wiki page (links in README file)
 
 Notice: probably you should'nt use all of this in same script :)
 
-<?phpb
+<?php
 
 //include only that one, rest required files will be included from it
 include "qrlib.php"
