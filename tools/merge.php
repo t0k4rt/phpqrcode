@@ -43,7 +43,8 @@
         $QR_BASEDIR.'qrsplit.php',
         $QR_BASEDIR.'qrrscode.php',
         $QR_BASEDIR.'qrmask.php',
-        $QR_BASEDIR.'qrencode.php'
+        $QR_BASEDIR.'qrencode.php',
+        $QR_BASEDIR.'qrvect.php'
     );
     
     $headerFile = $QR_TOOLSDIR.'merged_header.php';

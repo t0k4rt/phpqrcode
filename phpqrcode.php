@@ -6,14 +6,15 @@
  * This file contains MERGED version of PHP QR Code library.
  * It was auto-generated from full version for your convenience.
  *
- * This merged version was configured to not requre any external files,
- * with disabled cache, error loging and weker but faster mask matching.
+ * This merged version was configured to not require any external files,
+ * with disabled cache, error logging and weaker but faster mask matching.
  * If you need tune it up please use non-merged version.
  *
  * For full version, documentation, examples of use please visit:
  *
  *    http://phpqrcode.sourceforge.net/
  *    https://sourceforge.net/projects/phpqrcode/
+ *    https://github.com/t0k4rt/phpqrcode
  *
  * PHP QR Code is distributed under LGPL 3
  * Copyright (C) 2010 Dominik Dzienia <deltalab at poczta dot fm>
@@ -295,6 +296,19 @@
                 <tr style="border-top:2px solid black"><th style="text-align:right">TOTAL: </th><td>'.number_format($lastTime-$startTime, 6).'s</td></tr>
             </tfoot>
             </table>';
+        }
+        
+        public static function save($content, $filename_path)
+        {           
+            try {
+                $handle = fopen($filename_path, "w");
+                fwrite($handle, $content);
+                fclose($handle);
+                return true;
+            } catch (Exception $e) {
+                echo 'Exception reçue : ',  $e->getMessage(), "\n";
+            }      
+            
         }
         
     }
@@ -938,9 +952,9 @@
     class QRimage {
     
         //----------------------------------------------------------------------
-        public static function png($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE) 
+        public static function png($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE, $back_color, $fore_color) 
         {
-            $image = self::image($frame, $pixelPerPoint, $outerFrame);
+            $image = self::image($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color);
             
             if ($filename === false) {
                 Header("Content-type: image/png");
@@ -961,7 +975,7 @@
         //----------------------------------------------------------------------
         public static function jpg($frame, $filename = false, $pixelPerPoint = 8, $outerFrame = 4, $q = 85) 
         {
-            $image = self::image($frame, $pixelPerPoint, $outerFrame);
+            $image = self::image($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color);
             
             if ($filename === false) {
                 Header("Content-type: image/jpeg");
@@ -974,7 +988,7 @@
         }
     
         //----------------------------------------------------------------------
-        private static function image($frame, $pixelPerPoint = 4, $outerFrame = 4) 
+        private static function image($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
         {
             $h = count($frame);
             $w = strlen($frame[0]);
@@ -984,8 +998,20 @@
             
             $base_image =ImageCreate($imgW, $imgH);
             
-            $col[0] = ImageColorAllocate($base_image,255,255,255);
-            $col[1] = ImageColorAllocate($base_image,0,0,0);
+            // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
+            $r1 = round((($fore_color & 0xFF0000) >> 16), 5);
+            $b1 = round((($fore_color & 0x00FF00) >> 8), 5);
+            $g1 = round(($fore_color & 0x0000FF), 5);
+
+            // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
+            $r2 = round((($back_color & 0xFF0000) >> 16), 5);
+            $b2 = round((($back_color & 0x00FF00) >> 8), 5);
+            $g2 = round(($back_color & 0x0000FF), 5);
+
+
+            
+            $col[0] = ImageColorAllocate($base_image,$r2,$b2,$g2);
+            $col[1] = ImageColorAllocate($base_image,$r1,$b1,$g1);
 
             imagefill($base_image, 0, 0, $col[0]);
 
@@ -3088,9 +3114,9 @@
         }
         
         //----------------------------------------------------------------------
-        public static function png($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false) 
+        public static function png($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
         {
-            $enc = QRencode::factory($level, $size, $margin);
+            $enc = QRencode::factory($level, $size, $margin, $back_color, $fore_color);
             return $enc->encodePNG($text, $outfile, $saveandprint=false);
         }
 
@@ -3099,6 +3125,20 @@
         {
             $enc = QRencode::factory($level, $size, $margin);
             return $enc->encode($text, $outfile);
+        }
+        
+        //----------------------------------------------------------------------
+        public static function eps($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
+        {
+            $enc = QRencode::factory($level, $size, $margin, $back_color, $fore_color);
+            return $enc->encodeEPS($text, $outfile, $saveandprint=false);
+        }
+        
+        //----------------------------------------------------------------------
+        public static function svg($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
+        {
+            $enc = QRencode::factory($level, $size, $margin, $back_color, $fore_color);
+            return $enc->encodeSVG($text, $outfile, $saveandprint=false);
         }
 
         //----------------------------------------------------------------------
@@ -3209,6 +3249,8 @@
         public $version = 0;
         public $size = 3;
         public $margin = 4;
+        public $back_color = 0xFFFFFF;
+        public $fore_color = 0x000000;
         
         public $structured = 0; // not supported yet
         
@@ -3216,11 +3258,13 @@
         public $hint = QR_MODE_8;
         
         //----------------------------------------------------------------------
-        public static function factory($level = QR_ECLEVEL_L, $size = 3, $margin = 4)
+        public static function factory($level = QR_ECLEVEL_L, $size = 3, $margin = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000)
         {
             $enc = new QRencode();
             $enc->size = $size;
             $enc->margin = $margin;
+            $enc->fore_color = $fore_color;
+            $enc->back_color = $back_color;
             
             switch ($level.'') {
                 case '0':
@@ -3299,7 +3343,55 @@
                 
                 $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
                 
-                QRimage::png($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint);
+                QRimage::png($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint, $this->back_color, $this->fore_color);
+            
+            } catch (Exception $e) {
+            
+                QRtools::log($outfile, $e->getMessage());
+            
+            }
+        }
+        
+        //----------------------------------------------------------------------
+        public function encodeEPS($intext, $outfile = false,$saveandprint=false) 
+        {
+            try {
+            
+                ob_start();
+                $tab = $this->encode($intext);
+                $err = ob_get_contents();
+                ob_end_clean();
+                
+                if ($err != '')
+                    QRtools::log($outfile, $err);
+                
+                $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
+                
+                return QRvect::eps($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint, $this->back_color, $this->fore_color);
+            
+            } catch (Exception $e) {
+            
+                QRtools::log($outfile, $e->getMessage());
+            
+            }
+        }
+
+        //----------------------------------------------------------------------
+        public function encodeSVG($intext, $outfile = false,$saveandprint=false) 
+        {
+            try {
+            
+                ob_start();
+                $tab = $this->encode($intext);
+                $err = ob_get_contents();
+                ob_end_clean();
+                
+                if ($err != '')
+                    QRtools::log($outfile, $err);
+                
+                $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
+                
+                return QRvect::svg($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint, $this->back_color, $this->fore_color);
             
             } catch (Exception $e) {
             
@@ -3309,4 +3401,209 @@
         }
     }
 
+
+
+
+//---- qrvect.php -----------------------------
+
+
+
+
+/*
+ * PHP QR Code encoder
+ *
+ * Image output of code using GD2
+ *
+ * PHP QR Code is distributed under LGPL 3
+ * Copyright (C) 2010 Dominik Dzienia <deltalab at poczta dot fm>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+ 
+    define('QR_VECT', true);
+
+    class QRvect {
+    
+        //----------------------------------------------------------------------
+        public static function eps($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
+        {
+            $vect = self::vectEPS($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color);
+            
+            if ($filename === false) {
+                header("Content-Type: application/postscript");
+                header('Content-Disposition: filename="qrcode.eps"');
+                return $vect;
+            } else {
+                if($saveandprint===TRUE){
+                    QRtools::save($vect, $filename);
+                    header("Content-Type: application/postscript");
+                    header('Content-Disposition: filename="'.$filename.'"');
+                    return $vect;
+                }else{
+                    QRtools::save($vect, $filename);
+                }
+            }
+        }
+        
+    
+        //----------------------------------------------------------------------
+        private static function vectEPS($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
+        {
+            $h = count($frame);
+            $w = strlen($frame[0]);
+            
+            $imgW = $w + 2*$outerFrame;
+            $imgH = $h + 2*$outerFrame;
+            
+            
+            
+            
+            // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
+            $r = round((($fore_color & 0xFF0000) >> 16) / 255, 5);
+            $b = round((($fore_color & 0x00FF00) >> 8) / 255, 5);
+            $g = round(($fore_color & 0x0000FF) / 255, 5);
+            $fore_color = $r.' '.$b.' '.$g;
+            
+            // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
+            $r = round((($back_color & 0xFF0000) >> 16) / 255, 5);
+            $b = round((($back_color & 0x00FF00) >> 8) / 255, 5);
+            $g = round(($back_color & 0x0000FF) / 255, 5);
+            $back_color = $r.' '.$b.' '.$g;
+            
+            $output = 
+            '%!PS-Adobe EPSF-3.0'."\n".
+            '%%Creator: Zend_Matrixcode_Qrcode'."\n".
+            '%%Title: QRcode'."\n".
+            '%%CreationDate: '.date('Y-m-d')."\n".
+            '%%DocumentData: Clean7Bit'."\n".
+            '%%LanguageLevel: 2'."\n".
+            '%%Pages: 1'."\n".
+            '%%BoundingBox: 0 0 '.$imgW * $pixelPerPoint.' '.$imgH * $pixelPerPoint."\n";
+            
+            // set the scale
+            $output .= $pixelPerPoint.' '.$pixelPerPoint.' scale'."\n";
+            // position the center of the coordinate system
+            
+            $output .= $outerFrame.' '.$outerFrame.' translate'."\n";
+           
+           
+            
+            
+            // redefine the 'rectfill' operator to shorten the syntax
+            $output .= '/F { rectfill } def'."\n";
+            
+            // set the symbol color
+            $output .= $back_color.' setrgbcolor'."\n";
+            $output .= '-'.$outerFrame.' -'.$outerFrame.' '.($w + 2*$outerFrame).' '.($h + 2*$outerFrame).' F'."\n";
+            
+            
+            // set the symbol color
+            $output .= $fore_color.' setrgbcolor'."\n";
+
+            // Convert the matrix into pixels
+
+            for($i=0; $i<$h; $i++) {
+                for($j=0; $j<$w; $j++) {
+                    if( $frame[$i][$j] == '1') {
+                        $y = $h - 1 - $i;
+                        $x = $j;
+                        $output .= $x.' '.$y.' 1 1 F'."\n";
+                    }
+                }
+            }
+            
+            
+            $output .='%%EOF';
+            
+            return $output;
+        }
+        
+        //----------------------------------------------------------------------
+        public static function svg($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE, $back_color, $fore_color) 
+        {
+            $vect = self::vectSVG($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color);
+            
+            if ($filename === false) {
+                header("Content-Type: image/svg+xml");
+                header('Content-Disposition: filename="qrcode.svg"');
+                return $vect;
+            } else {
+                if($saveandprint===TRUE){
+                    QRtools::save($vect, $filename);
+                    header("Content-Type: image/svg+xml");
+                    header('Content-Disposition: filename="'.$filename.'"');
+                    return $vect;
+                }else{
+                    QRtools::save($vect, $filename);
+                }
+            }
+        }
+        
+    
+        //----------------------------------------------------------------------
+        private static function vectSVG($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
+        {
+            $h = count($frame);
+            $w = strlen($frame[0]);
+            
+            $imgW = $w + 2*$outerFrame;
+            $imgH = $h + 2*$outerFrame;
+            
+            
+            $output = 
+            '<?xml version="1.0" encoding="utf-8"?>'."\n".
+            '<svg version="1.1" baseProfile="full"  width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" viewBox="0 0 '.$imgW * $pixelPerPoint.' '.$imgH * $pixelPerPoint.'"
+             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">'."\n".
+            '<desc></desc>'."\n";
+
+            $output = 
+            '<?xml version="1.0" encoding="utf-8"?>'."\n".
+            '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">'."\n".
+            '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" xmlns:xlink="http://www.w3.org/1999/xlink" width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" viewBox="0 0 '.$imgW * $pixelPerPoint.' '.$imgH * $pixelPerPoint.'">'."\n".
+            '<desc></desc>'."\n";
+                
+            if(!empty($back_color)) {
+                $backgroundcolor = dechex($back_color);
+                $output .= '<rect width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" fill="#'.$backgroundcolor.'" cx="0" cy="0" />'."\n";
+            }
+                
+            $output .= 
+            '<defs>'."\n".
+            '<rect id="p" width="'.$pixelPerPoint.'" height="'.$pixelPerPoint.'" />'."\n".
+            '</defs>'."\n".
+            '<g fill="#'.dechex($fore_color).'">'."\n";
+                
+                
+            // Convert the matrix into pixels
+
+            for($i=0; $i<$h; $i++) {
+                for($j=0; $j<$w; $j++) {
+                    if( $frame[$i][$j] == '1') {
+                        $y = ($i + $outerFrame) * $pixelPerPoint;
+                        $x = ($j + $outerFrame) * $pixelPerPoint;
+                        $output .= '<use x="'.$x.'" y="'.$y.'" xlink:href="#p" />'."\n";
+                    }
+                }
+            }
+            $output .= 
+            '</g>'."\n".
+            '</svg>';
+            
+            return $output;
+        }
+    }
+    
+    
 

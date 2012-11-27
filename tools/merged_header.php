@@ -6,14 +6,15 @@
  * This file contains MERGED version of PHP QR Code library.
  * It was auto-generated from full version for your convenience.
  *
- * This merged version was configured to not requre any external files,
- * with disabled cache, error loging and weker but faster mask matching.
+ * This merged version was configured to not require any external files,
+ * with disabled cache, error logging and weaker but faster mask matching.
  * If you need tune it up please use non-merged version.
  *
  * For full version, documentation, examples of use please visit:
  *
  *    http://phpqrcode.sourceforge.net/
  *    https://sourceforge.net/projects/phpqrcode/
+ *    https://github.com/t0k4rt/phpqrcode
  *
  * PHP QR Code is distributed under LGPL 3
  * Copyright (C) 2010 Dominik Dzienia <deltalab at poczta dot fm>
