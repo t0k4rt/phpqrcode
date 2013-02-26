@@ -294,9 +294,9 @@
         }
         
         //----------------------------------------------------------------------
-        public static function eps($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
+        public static function eps($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000, $cmyk = false) 
         {
-            $enc = QRencode::factory($level, $size, $margin, $back_color, $fore_color);
+            $enc = QRencode::factory($level, $size, $margin, $back_color, $fore_color, $cmyk);
             return $enc->encodeEPS($text, $outfile, $saveandprint=false);
         }
         
@@ -424,13 +424,14 @@
         public $hint = QR_MODE_8;
         
         //----------------------------------------------------------------------
-        public static function factory($level = QR_ECLEVEL_L, $size = 3, $margin = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000)
+        public static function factory($level = QR_ECLEVEL_L, $size = 3, $margin = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000, $cmyk = false)
         {
             $enc = new QRencode();
             $enc->size = $size;
             $enc->margin = $margin;
             $enc->fore_color = $fore_color;
             $enc->back_color = $back_color;
+            $enc->cmyk = $cmyk;
             
             switch ($level.'') {
                 case '0':
@@ -533,7 +534,7 @@
                 
                 $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
                 
-                return QRvect::eps($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint, $this->back_color, $this->fore_color);
+                return QRvect::eps($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint, $this->back_color, $this->fore_color, $this->cmyk);
             
             } catch (Exception $e) {
             

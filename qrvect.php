@@ -27,20 +27,20 @@
     class QRvect {
     
         //----------------------------------------------------------------------
-        public static function eps($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
+        public static function eps($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE, $back_color = 0xFFFFFF, $fore_color = 0x000000, $cmyk = false) 
         {
-            $vect = self::vectEPS($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color);
+            $vect = self::vectEPS($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color, $cmyk);
             
             if ($filename === false) {
                 header("Content-Type: application/postscript");
                 header('Content-Disposition: filename="qrcode.eps"');
-                return $vect;
+                echo $vect;
             } else {
                 if($saveandprint===TRUE){
                     QRtools::save($vect, $filename);
                     header("Content-Type: application/postscript");
                     header('Content-Disposition: filename="'.$filename.'"');
-                    return $vect;
+                    echo $vect;
                 }else{
                     QRtools::save($vect, $filename);
                 }
@@ -49,7 +49,7 @@
         
     
         //----------------------------------------------------------------------
-        private static function vectEPS($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
+        private static function vectEPS($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000, $cmyk = false) 
         {
             $h = count($frame);
             $w = strlen($frame[0]);
@@ -57,20 +57,36 @@
             $imgW = $w + 2*$outerFrame;
             $imgH = $h + 2*$outerFrame;
             
-            
-            
-            
-            // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
-            $r = round((($fore_color & 0xFF0000) >> 16) / 255, 5);
-            $b = round((($fore_color & 0x00FF00) >> 8) / 255, 5);
-            $g = round(($fore_color & 0x0000FF) / 255, 5);
-            $fore_color = $r.' '.$b.' '.$g;
-            
-            // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
-            $r = round((($back_color & 0xFF0000) >> 16) / 255, 5);
-            $b = round((($back_color & 0x00FF00) >> 8) / 255, 5);
-            $g = round(($back_color & 0x0000FF) / 255, 5);
-            $back_color = $r.' '.$b.' '.$g;
+            if ($cmyk)
+            {
+                // convert color value into decimal eps format
+                $c = round((($fore_color & 0xFF000000) >> 16) / 255, 5);
+                $m = round((($fore_color & 0x00FF0000) >> 16) / 255, 5);
+                $y = round((($fore_color & 0x0000FF00) >> 8) / 255, 5);
+                $k = round(($fore_color & 0x000000FF) / 255, 5);
+                $fore_color_string = $c.' '.$m.' '.$y.' '.$k.' setcmykcolor'."\n";
+
+                // convert color value into decimal eps format
+                $c = round((($back_color & 0xFF000000) >> 16) / 255, 5);
+                $m = round((($back_color & 0x00FF0000) >> 16) / 255, 5);
+                $y = round((($back_color & 0x0000FF00) >> 8) / 255, 5);
+                $k = round(($back_color & 0x000000FF) / 255, 5);
+                $back_color_string = $c.' '.$m.' '.$y.' '.$k.' setcmykcolor'."\n";
+            }
+            else
+            {
+                // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
+                $r = round((($fore_color & 0xFF0000) >> 16) / 255, 5);
+                $b = round((($fore_color & 0x00FF00) >> 8) / 255, 5);
+                $g = round(($fore_color & 0x0000FF) / 255, 5);
+                $fore_color_string = $r.' '.$b.' '.$g.' setrgbcolor'."\n";
+
+                // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
+                $r = round((($back_color & 0xFF0000) >> 16) / 255, 5);
+                $b = round((($back_color & 0x00FF00) >> 8) / 255, 5);
+                $g = round(($back_color & 0x0000FF) / 255, 5);
+                $back_color_string = $r.' '.$b.' '.$g.' setrgbcolor'."\n";
+            }
             
             $output = 
             '%!PS-Adobe EPSF-3.0'."\n".
@@ -95,12 +111,12 @@
             $output .= '/F { rectfill } def'."\n";
             
             // set the symbol color
-            $output .= $back_color.' setrgbcolor'."\n";
+            $output .= $back_color_string;
             $output .= '-'.$outerFrame.' -'.$outerFrame.' '.($w + 2*$outerFrame).' '.($h + 2*$outerFrame).' F'."\n";
             
             
             // set the symbol color
-            $output .= $fore_color.' setrgbcolor'."\n";
+            $output .= $fore_color_string;
 
             // Convert the matrix into pixels
 
