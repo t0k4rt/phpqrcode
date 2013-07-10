@@ -24,22 +24,22 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
- 
+
 	define('N1', 3);
 	define('N2', 3);
 	define('N3', 40);
 	define('N4', 10);
 
 	class QRmask {
-	
+
 		public $runLength = array();
-		
+
 		//----------------------------------------------------------------------
-		public function __construct() 
+		public function __construct()
         {
             $this->runLength = array_fill(0, QRSPEC_WIDTH_MAX + 1, 0);
         }
-        
+
         //----------------------------------------------------------------------
         public function writeFormatInformation($width, &$frame, $mask, $level)
         {
@@ -53,7 +53,7 @@
                 } else {
                     $v = 0x84;
                 }
-                
+
                 $frame[8][$width - 1 - $i] = chr($v);
                 if($i < 6) {
                     $frame[$i][8] = chr($v);
@@ -62,7 +62,7 @@
                 }
                 $format = $format >> 1;
             }
-            
+
             for($i=0; $i<7; $i++) {
                 if($format & 1) {
                     $blacks += 2;
@@ -70,20 +70,20 @@
                 } else {
                     $v = 0x84;
                 }
-                
+
                 $frame[$width - 7 + $i][8] = chr($v);
                 if($i == 0) {
                     $frame[8][7] = chr($v);
                 } else {
                     $frame[8][6 - $i] = chr($v);
                 }
-                
+
                 $format = $format >> 1;
             }
 
             return $blacks;
         }
-        
+
         //----------------------------------------------------------------------
         public function mask0($x, $y) { return ($x+$y)&1;                       }
         public function mask1($x, $y) { return ($y&1);                          }
@@ -93,12 +93,12 @@
         public function mask5($x, $y) { return (($x*$y)&1)+($x*$y)%3;           }
         public function mask6($x, $y) { return ((($x*$y)&1)+($x*$y)%3)&1;       }
         public function mask7($x, $y) { return ((($x*$y)%3)+(($x+$y)&1))&1;     }
-        
+
         //----------------------------------------------------------------------
         private function generateMaskNo($maskNo, $width, $frame)
         {
             $bitMask = array_fill(0, $width, array_fill(0, $width, 0));
-            
+
             for($y=0; $y<$width; $y++) {
                 for($x=0; $x<$width; $x++) {
                     if(ord($frame[$y][$x]) & 0x80) {
@@ -107,42 +107,42 @@
                         $maskFunc = call_user_func(array($this, 'mask'.$maskNo), $x, $y);
                         $bitMask[$y][$x] = ($maskFunc == 0)?1:0;
                     }
-                    
+
                 }
             }
-            
+
             return $bitMask;
         }
-        
+
         //----------------------------------------------------------------------
         public static function serial($bitFrame)
         {
             $codeArr = array();
-            
+
             foreach ($bitFrame as $line)
                 $codeArr[] = join('', $line);
-                
+
             return gzcompress(join("\n", $codeArr), 9);
         }
-        
+
         //----------------------------------------------------------------------
         public static function unserial($code)
         {
             $codeArr = array();
-            
+
             $codeLines = explode("\n", gzuncompress($code));
             foreach ($codeLines as $line)
                 $codeArr[] = str_split($line);
-            
+
             return $codeArr;
         }
-        
+
         //----------------------------------------------------------------------
-        public function makeMaskNo($maskNo, $width, $s, &$d, $maskGenOnly = false) 
+        public function makeMaskNo($maskNo, $width, $s, &$d, $maskGenOnly = false)
         {
             $b = 0;
             $bitMask = array();
-            
+
             $fileName = QR_CACHE_DIR.'mask_'.$maskNo.DIRECTORY_SEPARATOR.'mask_'.$width.'_'.$maskNo.'.dat';
 
             if (QR_CACHEABLE) {
@@ -160,7 +160,7 @@
 
             if ($maskGenOnly)
                 return;
-                
+
             $d = $s;
 
             for($y=0; $y<$width; $y++) {
@@ -174,24 +174,24 @@
 
             return $b;
         }
-        
+
         //----------------------------------------------------------------------
         public function makeMask($width, $frame, $maskNo, $level)
         {
             $masked = array_fill(0, $width, str_repeat("\0", $width));
             $this->makeMaskNo($maskNo, $width, $frame, $masked);
             $this->writeFormatInformation($width, $masked, $maskNo, $level);
-       
+
             return $masked;
         }
-        
+
         //----------------------------------------------------------------------
         public function calcN1N3($length)
         {
             $demerit = 0;
 
             for($i=0; $i<$length; $i++) {
-                
+
                 if($this->runLength[$i] >= 5) {
                     $demerit += (N1 + ($this->runLength[$i] - 5));
                 }
@@ -213,7 +213,7 @@
             }
             return $demerit;
         }
-        
+
         //----------------------------------------------------------------------
         public function evaluateSymbol($width, $frame)
         {
@@ -223,18 +223,18 @@
             for($y=0; $y<$width; $y++) {
                 $head = 0;
                 $this->runLength[0] = 1;
-                
+
                 $frameY = $frame[$y];
-                
+
                 if ($y>0)
                     $frameYM = $frame[$y-1];
-                
+
                 for($x=0; $x<$width; $x++) {
                     if(($x > 0) && ($y > 0)) {
                         $b22 = ord($frameY[$x]) & ord($frameY[$x-1]) & ord($frameYM[$x]) & ord($frameYM[$x-1]);
                         $w22 = ord($frameY[$x]) | ord($frameY[$x-1]) | ord($frameYM[$x]) | ord($frameYM[$x-1]);
-                        
-                        if(($b22 | ($w22 ^ 1))&1) {                                                                     
+
+                        if(($b22 | ($w22 ^ 1))&1) {
                             $demerit += N2;
                         }
                     }
@@ -251,14 +251,14 @@
                         }
                     }
                 }
-    
+
                 $demerit += $this->calcN1N3($head+1);
             }
 
             for($x=0; $x<$width; $x++) {
                 $head = 0;
                 $this->runLength[0] = 1;
-                
+
                 for($y=0; $y<$width; $y++) {
                     if($y == 0 && (ord($frame[$y][$x]) & 1)) {
                         $this->runLength[0] = -1;
@@ -273,36 +273,36 @@
                         }
                     }
                 }
-            
+
                 $demerit += $this->calcN1N3($head+1);
             }
 
             return $demerit;
         }
-        
-        
+
+
         //----------------------------------------------------------------------
         public function mask($width, $frame, $level)
         {
             $minDemerit = PHP_INT_MAX;
             $bestMaskNum = 0;
             $bestMask = array();
-            
+
             $checked_masks = array(0,1,2,3,4,5,6,7);
-            
+
             if (QR_FIND_FROM_RANDOM !== false) {
-            
+
                 $howManuOut = 8-(QR_FIND_FROM_RANDOM % 9);
                 for ($i = 0; $i <  $howManuOut; $i++) {
                     $remPos = rand (0, count($checked_masks)-1);
                     unset($checked_masks[$remPos]);
                     $checked_masks = array_values($checked_masks);
                 }
-            
+
             }
-            
+
             $bestMask = $frame;
-             
+
             foreach($checked_masks as $i) {
                 $mask = array_fill(0, $width, str_repeat("\0", $width));
 
@@ -313,16 +313,16 @@
                 $blacks  = (int)(100 * $blacks / ($width * $width));
                 $demerit = (int)((int)(abs($blacks - 50) / 5) * N4);
                 $demerit += $this->evaluateSymbol($width, $mask);
-                
+
                 if($demerit < $minDemerit) {
                     $minDemerit = $demerit;
                     $bestMask = $mask;
                     $bestMaskNum = $i;
                 }
             }
-            
+
             return $bestMask;
         }
-        
+
         //----------------------------------------------------------------------
     }
