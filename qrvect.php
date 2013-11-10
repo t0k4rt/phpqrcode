@@ -121,13 +121,15 @@
         }
         
         //----------------------------------------------------------------------
-        public static function svg($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE, $back_color, $fore_color) 
+        public static function svg($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint = false, $back_color, $fore_color, $returnandembed = false) 
         {
-            $vect = self::vectSVG($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color);
+            $vect = self::vectSVG($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color, $returnandembed);
             
             if ($filename === false) {
-                header("Content-Type: image/svg+xml");
-                header('Content-Disposition: filename="qrcode.svg"');
+                if ($returnandembed == false) {
+                    header("Content-Type: image/svg+xml");
+                    header('Content-Disposition: filename="qrcode.svg"');
+                }
                 return $vect;
             } else {
                 if($saveandprint===TRUE){
@@ -143,7 +145,7 @@
         
     
         //----------------------------------------------------------------------
-        private static function vectSVG($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
+        private static function vectSVG($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000, $returnandembed = false)
         {
             $h = count($frame);
             $w = strlen($frame[0]);
@@ -152,15 +154,13 @@
             $imgH = $h + 2*$outerFrame;
             
             
-            $output = 
-            '<?xml version="1.0" encoding="utf-8"?>'."\n".
-            '<svg version="1.1" baseProfile="full"  width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" viewBox="0 0 '.$imgW * $pixelPerPoint.' '.$imgH * $pixelPerPoint.'"
-             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">'."\n".
-            '<desc></desc>'."\n";
+            $output = "";
+            if ($returnandembed == false) {
+                $output .= '<?xml version="1.0" encoding="utf-8"?>'."\n".
+                           '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">'."\n";
+            }
 
-            $output = 
-            '<?xml version="1.0" encoding="utf-8"?>'."\n".
-            '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">'."\n".
+            $output .= 
             '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" xmlns:xlink="http://www.w3.org/1999/xlink" width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" viewBox="0 0 '.$imgW * $pixelPerPoint.' '.$imgH * $pixelPerPoint.'">'."\n".
             '<desc></desc>'."\n";
                 

@@ -3117,7 +3117,7 @@
         public static function png($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
         {
             $enc = QRencode::factory($level, $size, $margin, $back_color, $fore_color);
-            return $enc->encodePNG($text, $outfile, $saveandprint=false);
+            return $enc->encodePNG($text, $outfile, $saveandprint);
         }
 
         //----------------------------------------------------------------------
@@ -3131,14 +3131,14 @@
         public static function eps($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
         {
             $enc = QRencode::factory($level, $size, $margin, $back_color, $fore_color);
-            return $enc->encodeEPS($text, $outfile, $saveandprint=false);
+            return $enc->encodeEPS($text, $outfile, $saveandprint);
         }
         
         //----------------------------------------------------------------------
-        public static function svg($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
+        public static function svg($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000, $returnandembed=false) 
         {
             $enc = QRencode::factory($level, $size, $margin, $back_color, $fore_color);
-            return $enc->encodeSVG($text, $outfile, $saveandprint=false);
+            return $enc->encodeSVG($text, $outfile, $saveandprint, $returnandembed);
         }
 
         //----------------------------------------------------------------------
@@ -3377,7 +3377,7 @@
         }
 
         //----------------------------------------------------------------------
-        public function encodeSVG($intext, $outfile = false,$saveandprint=false) 
+        public function encodeSVG($intext, $outfile = false,$saveandprint = false, $returnandembed = false)
         {
             try {
             
@@ -3391,7 +3391,7 @@
                 
                 $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
                 
-                return QRvect::svg($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint, $this->back_color, $this->fore_color);
+                return QRvect::svg($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint, $this->back_color, $this->fore_color, $returnandembed);
             
             } catch (Exception $e) {
             
@@ -3531,13 +3531,15 @@
         }
         
         //----------------------------------------------------------------------
-        public static function svg($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE, $back_color, $fore_color) 
+        public static function svg($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint = false, $back_color, $fore_color, $returnandembed = false) 
         {
-            $vect = self::vectSVG($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color);
+            $vect = self::vectSVG($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color, $returnandembed);
             
             if ($filename === false) {
-                header("Content-Type: image/svg+xml");
-                header('Content-Disposition: filename="qrcode.svg"');
+                if ($returnandembed == false) {
+                    header("Content-Type: image/svg+xml");
+                    header('Content-Disposition: filename="qrcode.svg"');
+                }
                 return $vect;
             } else {
                 if($saveandprint===TRUE){
@@ -3553,7 +3555,7 @@
         
     
         //----------------------------------------------------------------------
-        private static function vectSVG($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
+        private static function vectSVG($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000, $returnandembed = false)
         {
             $h = count($frame);
             $w = strlen($frame[0]);
@@ -3562,15 +3564,13 @@
             $imgH = $h + 2*$outerFrame;
             
             
-            $output = 
-            '<?xml version="1.0" encoding="utf-8"?>'."\n".
-            '<svg version="1.1" baseProfile="full"  width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" viewBox="0 0 '.$imgW * $pixelPerPoint.' '.$imgH * $pixelPerPoint.'"
-             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">'."\n".
-            '<desc></desc>'."\n";
+            $output = "";
+            if ($returnandembed == false) {
+                $output .= '<?xml version="1.0" encoding="utf-8"?>'."\n".
+                           '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">'."\n";
+            }
 
-            $output = 
-            '<?xml version="1.0" encoding="utf-8"?>'."\n".
-            '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">'."\n".
+            $output .= 
             '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" xmlns:xlink="http://www.w3.org/1999/xlink" width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" viewBox="0 0 '.$imgW * $pixelPerPoint.' '.$imgH * $pixelPerPoint.'">'."\n".
             '<desc></desc>'."\n";
                 
@@ -3606,4 +3606,5 @@
     }
     
     
+
 
