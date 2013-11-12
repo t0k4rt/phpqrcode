@@ -165,7 +165,7 @@
             '<desc></desc>'."\n";
                 
             if(!empty($back_color)) {
-                $backgroundcolor = dechex($back_color);
+                $backgroundcolor = str_pad(dechex($back_color), 6, "0");
                 $output .= '<rect width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" fill="#'.$backgroundcolor.'" cx="0" cy="0" />'."\n";
             }
                 
@@ -173,7 +173,7 @@
             '<defs>'."\n".
             '<rect id="p" width="'.$pixelPerPoint.'" height="'.$pixelPerPoint.'" />'."\n".
             '</defs>'."\n".
-            '<g fill="#'.dechex($fore_color).'">'."\n";
+            '<g fill="#'.str_pad(dechex($fore_color), 6, "0").'">'."\n";
                 
                 
             // Convert the matrix into pixels
