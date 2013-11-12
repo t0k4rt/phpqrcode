@@ -36,8 +36,33 @@ Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 == INSTALATION AND USAGE ==
 
- * INSTALL file
- * http://sourceforge.net/apps/mediawiki/phpqrcode/index.php?title=Main_Page
+You can use the library via [Composer](http://getcomposer.org/).
+
+Just add the following dependency to your composer.json file:
+
+    {
+        "repositories": [
+            {
+                "type": "vcs",
+                "url": "https://github.com/steinsag/phpqrcode"
+            }
+        ],
+        "require": {
+            "t0k4rt/phpqrcode": "dev-composer"
+        }
+    }
+
+Afterwards, install the library via Composer:
+
+    $ php composer.phar install
+
+You can now generate QR codes by relying on Composer's autoloader. Here an
+example PHP file returning a QR code as PNG image:
+
+    <?php
+       require 'vendor/autoload.php';
+
+       QRcode::png("Hello World!");
 
 == CONTACT ==
 

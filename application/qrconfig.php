@@ -4,6 +4,8 @@
  *
  * Config file, feel free to modify
  */
+
+    require_once "qrlib.php";
      
     define('QR_CACHEABLE', true);                                                               // use cache - more disk reads but less CPU power, masks and format templates are stored there
     define('QR_CACHE_DIR', dirname(__FILE__).DIRECTORY_SEPARATOR.'cache'.DIRECTORY_SEPARATOR);  // used when QR_CACHEABLE === true

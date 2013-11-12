@@ -1,2 +1,5 @@
 .idea/
 temp/*.png
+vendor
+tests/report
+composer.lock
