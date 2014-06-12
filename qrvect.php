@@ -33,13 +33,13 @@
             
             if ($filename === false) {
                 header("Content-Type: application/postscript");
-                header('Content-Disposition: attachment; filename="qrcode.eps"');
+                header('Content-Disposition: filename="qrcode.eps"');
                 echo $vect;
             } else {
                 if($saveandprint===TRUE){
                     QRtools::save($vect, $filename);
                     header("Content-Type: application/postscript");
-                    header('Content-Disposition: attachment; filename="qrcode.eps"');
+                    header('Content-Disposition: filename="qrcode.eps"');
                     echo $vect;
                 }else{
                     QRtools::save($vect, $filename);
