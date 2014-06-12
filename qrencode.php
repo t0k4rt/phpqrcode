@@ -301,7 +301,7 @@
         }
         
         //----------------------------------------------------------------------
-        public static function svg($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
+        public static function svg($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000)
         {
             $enc = QRencode::factory($level, $size, $margin, $back_color, $fore_color);
             return $enc->encodeSVG($text, $outfile, $saveandprint=false);
@@ -534,7 +534,7 @@
                 
                 $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
                 
-                return QRvect::eps($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint, $this->back_color, $this->fore_color, $this->cmyk);
+                QRvect::eps($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint, $this->back_color, $this->fore_color, $this->cmyk);
             
             } catch (Exception $e) {
             
@@ -557,8 +557,8 @@
                     QRtools::log($outfile, $err);
                 
                 $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
-                
-                return QRvect::svg($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint, $this->back_color, $this->fore_color);
+
+                QRvect::svg($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint, $this->back_color, $this->fore_color);
             
             } catch (Exception $e) {
             
