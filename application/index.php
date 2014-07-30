@@ -58,13 +58,13 @@
             
         // user data
         $filename = $PNG_TEMP_DIR.'test'.md5($_REQUEST['data'].'|'.$errorCorrectionLevel.'|'.$matrixPointSize).'.png';
-        QRcode::png($_REQUEST['data'], $filename, $errorCorrectionLevel, $matrixPointSize, 2);    
+        phpQRCode\QRcode::png($_REQUEST['data'], $filename, $errorCorrectionLevel, $matrixPointSize, 2);    
         
     } else {    
     
         //default data
         echo 'You can provide data in GET parameter: <a href="?data=like_that">like that</a><hr/>';    
-        QRcode::png('PHP QR Code :)', $filename, $errorCorrectionLevel, $matrixPointSize, 2);    
+        phpQRCode\QRcode::png('PHP QR Code :)', $filename, $errorCorrectionLevel, $matrixPointSize, 2);    
         
     }    
         
@@ -89,6 +89,6 @@
         <input type="submit" value="GENERATE"></form><hr/>';
         
     // benchmark
-    QRtools::timeBenchmark();    
+    phpQRCode\QRtools::timeBenchmark();    
 
     
