@@ -1,4 +1,7 @@
 <?php
+namespace phpQRCode;
+
+
 /*
  * PHP QR Code encoder
  *
@@ -25,20 +28,17 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 	
-	$QR_BASEDIR = dirname(__FILE__).DIRECTORY_SEPARATOR;
-	
 	// Required libs
-	
-	include $QR_BASEDIR."qrconst.php";
-	include $QR_BASEDIR."qrconfig.php";
-	include $QR_BASEDIR."qrtools.php";
-	include $QR_BASEDIR."qrspec.php";
-	include $QR_BASEDIR."qrimage.php";
-    include $QR_BASEDIR."qrvect.php";
-	include $QR_BASEDIR."qrinput.php";
-	include $QR_BASEDIR."qrbitstream.php";
-	include $QR_BASEDIR."qrsplit.php";
-	include $QR_BASEDIR."qrrscode.php";
-	include $QR_BASEDIR."qrmask.php";
-	include $QR_BASEDIR."qrencode.php";
+	require_once "qrconst.php";
+	require_once "qrconfig.php";
+	require_once "qrtools.php";
+	require_once "qrspec.php";
+	require_once "qrimage.php";
+   require_once "qrvect.php";
+	require_once "qrinput.php";
+	require_once "qrbitstream.php";
+	require_once "qrsplit.php";
+	require_once "qrrscode.php";
+	require_once "qrmask.php";
+	require_once "qrencode.php";
 
