@@ -25,6 +25,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+   require_once "qrlib.php";
+
 	define('N1', 3);
 	define('N2', 3);
 	define('N3', 40);
