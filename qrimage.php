@@ -27,9 +27,9 @@
     class QRimage {
 
         //----------------------------------------------------------------------
-        public static function png($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE, $back_color, $fore_color)
+        public static function png($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE, $back_color, $fore_color, $back_transparent)
         {
-            $image = self::image($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color);
+            $image = self::image($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color, $back_transparent);
 
             if ($filename === false) {
                 Header("Content-type: image/png");
@@ -63,7 +63,7 @@
         }
 
         //----------------------------------------------------------------------
-        private static function image($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000)
+        private static function image($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000, $back_transparent = false)
         {
             $h = count($frame);
             $w = strlen($frame[0]);
@@ -100,6 +100,12 @@
 
             $target_image =ImageCreate($imgW * $pixelPerPoint, $imgH * $pixelPerPoint);
             ImageCopyResized($target_image, $base_image, 0, 0, 0, 0, $imgW * $pixelPerPoint, $imgH * $pixelPerPoint, $imgW, $imgH);
+
+            if ($back_transparent == true) {
+                $col[2] = imagecolorexact($target_image, $r2, $b2, $g2);
+                ImageColorTransparent($target_image, $col[2]);
+            }
+            
             ImageDestroy($base_image);
 
             return $target_image;
