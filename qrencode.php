@@ -304,7 +304,7 @@
         public static function latex_rules($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $writeheader=true, $back_color = 0xFFFFFF, $fore_color = 0x000000, $cmyk = false) 
         {
             $enc = QRencode::factory($level, $size, $margin, $back_color, $fore_color, $cmyk);
-            return $enc->encodeLatex_Rules($text, $outfile, $size . "mm", $writeheader);
+            return $enc->encodeLatex_Rules($text, $outfile, $size, $writeheader);
         }
         
         //----------------------------------------------------------------------
@@ -551,7 +551,7 @@
         }
 
         //----------------------------------------------------------------------
-        public function encodeLatex_Rules($intext, $outfile = false, $blocksize = "2mm", $writeheader = true) 
+        public function encodeLatex_Rules($intext, $outfile = false, $totalsize = "16", $writeheader = true) 
         {
             try {
             
@@ -563,7 +563,7 @@
                 if ($err != '')
                     QRtools::log($outfile, $err);
                 
-                return QRvect::latex_rules($tab, $outfile, $blocksize, $writeheader);
+                return QRvect::latex_rules($tab, $outfile, sprintf("%.3fmm", $totalsize / strlen($tab[0])), $writeheader);
             
             } catch (Exception $e) {
             
