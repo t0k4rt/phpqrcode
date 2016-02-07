@@ -129,7 +129,7 @@
         //----------------------------------------------------------------------
         public function getCode()
         {
-            $ret;
+            $ret = NULL;
 
             if($this->count < $this->dataLength) {
                 $row = $this->count % $this->blocks;
