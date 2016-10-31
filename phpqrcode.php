@@ -1084,7 +1084,6 @@
         
             if(!QRinput::check($mode, $size, $setData)) {
                 throw new Exception('Error m:'.$mode.',s:'.$size.',d:'.join(',',$setData));
-                return null;
             }
             
             $this->mode = $mode;
@@ -1322,7 +1321,6 @@
         {
             if ($version < 0 || $version > QRSPEC_VERSION_MAX || $level > QR_ECLEVEL_H) {
                 throw new Exception('Invalid version no');
-                return NULL;
             }
             
             $this->version = $version;
@@ -1359,7 +1357,6 @@
         {
             if($level > QR_ECLEVEL_H) {
                 throw new Exception('Invalid ECLEVEL');
-                return -1;
             }
 
             $this->level = $level;
@@ -2911,7 +2908,6 @@
             $ret = $this->init($spec);
             if($ret < 0) {
                 throw new Exception('block alloc error');
-                return null;
             }
 
             $this->count = 0;
