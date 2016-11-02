@@ -998,20 +998,20 @@
 
             $base_image =ImageCreate($imgW, $imgH);
 
-            // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
+            // convert a hexadecimal color code into decimal format (red = 255 0 0, green = 0 255 0, blue = 0 0 255)
             $r1 = round((($fore_color & 0xFF0000) >> 16), 5);
-            $b1 = round((($fore_color & 0x00FF00) >> 8), 5);
-            $g1 = round(($fore_color & 0x0000FF), 5);
+            $g1 = round((($fore_color & 0x00FF00) >> 8), 5);
+            $b1 = round(($fore_color & 0x0000FF), 5);
 
-            // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
+            // convert a hexadecimal color code into decimal format (red = 255 0 0, green = 0 255 0, blue = 0 0 255)
             $r2 = round((($back_color & 0xFF0000) >> 16), 5);
-            $b2 = round((($back_color & 0x00FF00) >> 8), 5);
-            $g2 = round(($back_color & 0x0000FF), 5);
+            $g2 = round((($back_color & 0x00FF00) >> 8), 5);
+            $b2 = round(($back_color & 0x0000FF), 5);
 
 
 
-            $col[0] = ImageColorAllocate($base_image,$r2,$b2,$g2);
-            $col[1] = ImageColorAllocate($base_image,$r1,$b1,$g1);
+            $col[0] = ImageColorAllocate($base_image, $r2, $g2, $b2);
+            $col[1] = ImageColorAllocate($base_image, $r1, $g1, $b1);
 
             imagefill($base_image, 0, 0, $col[0]);
 
@@ -1030,6 +1030,7 @@
             return $target_image;
         }
     }
+
 
 
 
@@ -1084,7 +1085,6 @@
         
             if(!QRinput::check($mode, $size, $setData)) {
                 throw new Exception('Error m:'.$mode.',s:'.$size.',d:'.join(',',$setData));
-                return null;
             }
             
             $this->mode = $mode;
@@ -1322,7 +1322,6 @@
         {
             if ($version < 0 || $version > QRSPEC_VERSION_MAX || $level > QR_ECLEVEL_H) {
                 throw new Exception('Invalid version no');
-                return NULL;
             }
             
             $this->version = $version;
@@ -1659,7 +1658,6 @@
                 $ver = QRspec::getMinimumVersion((int)(($bits + 7) / 8), $this->level);
                 if($ver < 0) {
                     throw new Exception('WRONG VERSION');
-                    return -1;
                 } else if($ver > $this->getVersion()) {
                     $this->setVersion($ver);
                 } else {
@@ -2243,7 +2241,7 @@
             $p = 0;
 
             while ($p<$stringLen) {
-                $mode = self::identifyMode(substr($this->dataStr, $p), $this->modeHint);
+                $mode = self::identifyMode(substr($this->dataStr, $p));
                 if($mode == QR_MODE_KANJI) {
                     $p += 2;
                 } else {
@@ -3585,9 +3583,9 @@
              xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">'."\n".
             '<desc></desc>'."\n";
 
-            $output = 
+            $output =
             '<?xml version="1.0" encoding="utf-8"?>'."\n".
-            '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">'."\n".
+            '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">'."\n".
             '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" xmlns:xlink="http://www.w3.org/1999/xlink" width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" viewBox="0 0 '.$imgW * $pixelPerPoint.' '.$imgH * $pixelPerPoint.'">'."\n".
             '<desc></desc>'."\n";
                 
