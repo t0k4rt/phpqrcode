@@ -73,20 +73,20 @@
 
             $base_image =ImageCreate($imgW, $imgH);
 
-            // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
+            // convert a hexadecimal color code into decimal format (red = 255 0 0, green = 0 255 0, blue = 0 0 255)
             $r1 = round((($fore_color & 0xFF0000) >> 16), 5);
-            $b1 = round((($fore_color & 0x00FF00) >> 8), 5);
-            $g1 = round(($fore_color & 0x0000FF), 5);
+            $g1 = round((($fore_color & 0x00FF00) >> 8), 5);
+            $b1 = round(($fore_color & 0x0000FF), 5);
 
-            // convert a hexadecimal color code into decimal eps format (green = 0 1 0, blue = 0 0 1, ...)
+            // convert a hexadecimal color code into decimal format (red = 255 0 0, green = 0 255 0, blue = 0 0 255)
             $r2 = round((($back_color & 0xFF0000) >> 16), 5);
-            $b2 = round((($back_color & 0x00FF00) >> 8), 5);
-            $g2 = round(($back_color & 0x0000FF), 5);
+            $g2 = round((($back_color & 0x00FF00) >> 8), 5);
+            $b2 = round(($back_color & 0x0000FF), 5);
 
 
 
-            $col[0] = ImageColorAllocate($base_image,$r2,$b2,$g2);
-            $col[1] = ImageColorAllocate($base_image,$r1,$b1,$g1);
+            $col[0] = ImageColorAllocate($base_image, $r2, $g2, $b2);
+            $col[1] = ImageColorAllocate($base_image, $r1, $g1, $b1);
 
             imagefill($base_image, 0, 0, $col[0]);
 
