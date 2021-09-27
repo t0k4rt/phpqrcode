@@ -1,3 +1,12 @@
+## DEPRECATED ##
+
+Please do not use this QR code library anymore, This library has not been maintained for a long time and should be considered insecure, 
+It does not use any of the features of modern PHP versions (7+) and would need a lot of work in order to get modernized.
+
+Please instead take a look at https://github.com/chillerlan/php-qrcode
+
+Thanks
+
 This is PHP implementation of QR Code 2-D barcode generator. It is pure-php
 LGPL-licensed implementation based on C libqrencode by Kentaro Fukuchi.
 
