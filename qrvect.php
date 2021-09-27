@@ -26,7 +26,6 @@
 
     class QRvect {
     
-        //----------------------------------------------------------------------
         public static function eps($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE, $back_color = 0xFFFFFF, $fore_color = 0x000000, $cmyk = false) 
         {
             $vect = self::vectEPS($frame, $pixelPerPoint, $outerFrame, $back_color, $fore_color, $cmyk);
@@ -46,7 +45,7 @@
                 }
             }
         }
-        
+
     
         //----------------------------------------------------------------------
         private static function vectEPS($frame, $pixelPerPoint = 4, $outerFrame = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000, $cmyk = false) 
@@ -135,6 +134,54 @@
             
             return $output;
         }
+
+        //----------------------------------------------------------------------
+        public static function latex_rules($frame, $filename = false, $blocksize = "2mm", $writeheader = true)
+        {
+            $output = "";
+            if($writeheader)
+            {
+                $output .= "\\documentclass{article}\n";
+                $output .= "\\begin{document}\n";
+                $output .= "\\newlength\\qrmodulesize\n";
+                $output .= "\\newlength\qrminipagewidth\n";
+            }
+
+            $h = count($frame);
+            $w = strlen($frame[0]);
+            
+            $output .= "\\setlength{\\qrmodulesize}{" . $blocksize . "}\n";
+            $output .= "\\setlength{\\qrminipagewidth}{\\qrmodulesize}\n";
+            $output .= "\\multiply\\qrminipagewidth by $w\n";
+            
+            $output .= "\\begin{minipage}{\\qrminipagewidth}\n";
+            $output .= "\\baselineskip=\\qrmodulesize\n";
+            $output .= "\\parindent=0mm\n";
+            $output .= "\\def\\qrb{\\rule{\\qrmodulesize}{\\qrmodulesize}}\n";
+            $output .= "\\def\\qrw{\\rule{\\qrmodulesize}{0pt}}\n";
+
+            for($i=0; $i<$h; $i++) {
+                $output .= "\\par";
+                for($j=0; $j<$w; $j++) {
+                    if( $frame[$i][$j] == '1')
+                        $output .= "\\qrb";
+                    else
+                        $output .= "\\qrw";
+                }
+            }
+            
+            $output .= "\\end{minipage}\n";
+            
+            if($writeheader)
+                $output .= "\\end{document}\n";
+            
+            if($filename)
+                QRtools::save($output, $filename);
+            else
+                return($output);
+        }
+        
+
         
         //----------------------------------------------------------------------
         public static function svg($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE, $back_color, $fore_color) 

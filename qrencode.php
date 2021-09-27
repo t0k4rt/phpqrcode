@@ -299,6 +299,13 @@
             $enc = QRencode::factory($level, $size, $margin, $back_color, $fore_color, $cmyk);
             return $enc->encodeEPS($text, $outfile, $saveandprint=false);
         }
+
+        //----------------------------------------------------------------------
+        public static function latex_rules($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $writeheader=true, $back_color = 0xFFFFFF, $fore_color = 0x000000, $cmyk = false) 
+        {
+            $enc = QRencode::factory($level, $size, $margin, $back_color, $fore_color, $cmyk);
+            return $enc->encodeLatex_Rules($text, $outfile, $size, $writeheader);
+        }
         
         //----------------------------------------------------------------------
         public static function svg($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000)
@@ -535,6 +542,28 @@
                 $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
                 
                 QRvect::eps($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint, $this->back_color, $this->fore_color, $this->cmyk);
+            
+            } catch (Exception $e) {
+            
+                QRtools::log($outfile, $e->getMessage());
+            
+            }
+        }
+
+        //----------------------------------------------------------------------
+        public function encodeLatex_Rules($intext, $outfile = false, $totalsize = "16", $writeheader = true) 
+        {
+            try {
+            
+                ob_start();
+                $tab = $this->encode($intext);
+                $err = ob_get_contents();
+                ob_end_clean();
+                
+                if ($err != '')
+                    QRtools::log($outfile, $err);
+                
+                return QRvect::latex_rules($tab, $outfile, sprintf("%.3fmm", $totalsize / strlen($tab[0])), $writeheader);
             
             } catch (Exception $e) {
             
