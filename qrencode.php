@@ -292,7 +292,36 @@
             $enc = QRencode::factory($level, $size, $margin);
             return $enc->encode($text, $outfile);
         }
-        
+
+/* vv01f added for
+   * easier (simple call) and
+   * (old browser) compatible
+   * no need to write files on servers
+   inclusion of qr-codes in php generated html
+*/
+        public static function divHTML(
+         $text,
+         $tpl = array( /* changeable html markup */
+            '1' => '<div class="dark square"></div>',
+            '0' => '<div class="white square"></div>',
+            'n' => '<div class="clear"></div>'
+         ),
+         $level = QR_ECLEVEL_L
+        ) {
+         $enc = QRencode::factory($level);
+         $html = '';
+         foreach ($enc->encode($text, false) as $l) {
+          for ($i = 0; $i < strlen($l); $i++) {
+           $html .= (($l[$i]=='1')
+            ? $tpl['1']
+            : $tpl['0']
+           );
+          }
+          $html .= ($tpl['n']);
+         }
+         return $html;
+        }
+
         //----------------------------------------------------------------------
         public static function eps($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000, $cmyk = false) 
         {
