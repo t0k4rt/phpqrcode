@@ -49,6 +49,10 @@
     if (isset($_REQUEST['size']))
         $matrixPointSize = min(max((int)$_REQUEST['size'], 1), 10);
 
+    $backTransparent = false;
+    if (isset($_REQUEST['back_transparent']))
+        $backTransparent = (bool) $_REQUEST['back_transparent'];
+
 
     if (isset($_REQUEST['data'])) { 
     
@@ -58,18 +62,20 @@
             
         // user data
         $filename = $PNG_TEMP_DIR.'test'.md5($_REQUEST['data'].'|'.$errorCorrectionLevel.'|'.$matrixPointSize).'.png';
-        QRcode::png($_REQUEST['data'], $filename, $errorCorrectionLevel, $matrixPointSize, 2);    
+        QRcode::png($_REQUEST['data'], $filename, $errorCorrectionLevel, $matrixPointSize, 2, false, 0xFFFFFF, 0x000000, $backTransparent);    
         
     } else {    
     
         //default data
         echo 'You can provide data in GET parameter: <a href="?data=like_that">like that</a><hr/>';    
-        QRcode::png('PHP QR Code :)', $filename, $errorCorrectionLevel, $matrixPointSize, 2);    
+        QRcode::png('PHP QR Code :)', $filename, $errorCorrectionLevel, $matrixPointSize, 2, false, 0xFFFFFF, 0x000000, $backTransparent);    
         
     }    
         
     //display generated file
-    echo '<img src="'.$PNG_WEB_DIR.basename($filename).'" /><hr/>';  
+    echo '<div style="background-color: #c097e0; padding: 1em;">
+        <img src="'.$PNG_WEB_DIR.basename($filename).'" />
+        </div><hr/>';  
     
     //config form
     echo '<form action="index.php" method="post">
@@ -86,6 +92,7 @@
         echo '<option value="'.$i.'"'.(($matrixPointSize==$i)?' selected':'').'>'.$i.'</option>';
         
     echo '</select>&nbsp;
+        <input type="checkbox" name="back_transparent" value="backTransparent"'.(($backTransparent==true)?' checked':'').'> Transparent
         <input type="submit" value="GENERATE"></form><hr/>';
         
     // benchmark

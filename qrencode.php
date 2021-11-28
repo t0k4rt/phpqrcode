@@ -280,9 +280,9 @@
         }
         
         //----------------------------------------------------------------------
-        public static function png($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000) 
+        public static function png($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false, $back_color = 0xFFFFFF, $fore_color = 0x000000, $back_transparent = false) 
         {
-            $enc = QRencode::factory($level, $size, $margin, $back_color, $fore_color);
+            $enc = QRencode::factory($level, $size, $margin, $back_color, $fore_color, false, $back_transparent);
             return $enc->encodePNG($text, $outfile, $saveandprint=false);
         }
 
@@ -424,7 +424,7 @@
         public $hint = QR_MODE_8;
         
         //----------------------------------------------------------------------
-        public static function factory($level = QR_ECLEVEL_L, $size = 3, $margin = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000, $cmyk = false)
+        public static function factory($level = QR_ECLEVEL_L, $size = 3, $margin = 4, $back_color = 0xFFFFFF, $fore_color = 0x000000, $cmyk = false, $back_transparent = false)
         {
             $enc = new QRencode();
             $enc->size = $size;
@@ -432,6 +432,7 @@
             $enc->fore_color = $fore_color;
             $enc->back_color = $back_color;
             $enc->cmyk = $cmyk;
+            $enc->back_transparent = $back_transparent;
             
             switch ($level.'') {
                 case '0':
@@ -510,7 +511,7 @@
                 
                 $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
                 
-                QRimage::png($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint, $this->back_color, $this->fore_color);
+                QRimage::png($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint, $this->back_color, $this->fore_color, $this->back_transparent);
             
             } catch (Exception $e) {
             
