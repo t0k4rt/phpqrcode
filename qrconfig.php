@@ -14,4 +14,4 @@
     define('QR_DEFAULT_MASK', 2);                                                               // when QR_FIND_BEST_MASK === false
                                                   
     define('QR_PNG_MAXIMUM_SIZE',  1024);                                                       // maximum allowed png image width (in pixels), tune to make sure GD and PHP can handle such big images
-                                                  
+    define('QR_GDIMAGE_MAXIMUM_SIZE',  1024);

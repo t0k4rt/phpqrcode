@@ -287,6 +287,13 @@
         }
 
         //----------------------------------------------------------------------
+        public static function gdimage($text, $level = QR_ECLEVEL_L, $size = 3, $margin = 4) 
+        {
+            $enc = QRencode::factory($level, $size, $margin);
+            return $enc->encodeGDIMAGE($text);
+        }
+
+        //----------------------------------------------------------------------
         public static function text($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4) 
         {
             $enc = QRencode::factory($level, $size, $margin);
@@ -565,5 +572,13 @@
                 QRtools::log($outfile, $e->getMessage());
             
             }
+        }
+
+        //----------------------------------------------------------------------
+        public function encodeGDIMAGE($intext) 
+        {
+          $tab = $this->encode($intext);
+          $maxSize = (int)(QR_GDIMAGE_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
+          return QRimage::gdimage($tab, min(max(1, $this->size), $maxSize), $this->margin);
         }
     }
