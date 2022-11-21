@@ -48,6 +48,12 @@
         }
 
         //----------------------------------------------------------------------
+        public static function gdimage($frame, $pixelPerPoint = 4, $outerFrame = 4) 
+        {
+            return self::image($frame, $pixelPerPoint, $outerFrame);
+        }
+
+        //----------------------------------------------------------------------
         public static function jpg($frame, $filename = false, $pixelPerPoint = 8, $outerFrame = 4, $q = 85)
         {
             $image = self::image($frame, $pixelPerPoint, $outerFrame);
